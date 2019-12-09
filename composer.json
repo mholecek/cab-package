@@ -1,0 +1,27 @@
+{
+    "name": "mholecek/cab-package",
+    "description": "PHP CAB packages creator",
+    "keywords": [
+        "CAB",
+        "package",
+        "file"
+    ],
+    "license": "MPL-2.0",
+    "homepage": "https://github.com/mholecek/cab-package",
+    "authors": [
+        {
+            "name": "Martin Holecek"
+        }
+    ],
+    "require": {
+        "php": "^7.2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Holda\\CAB\\": "src"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    }
+}
