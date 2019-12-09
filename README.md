@@ -7,7 +7,7 @@ Usage
 Download or clone library.
 Then, you can use it:
 ```php
-$packagge = new \Holda\CAB\Package('yourNewCABFile.cab',0);
+$package = new \Holda\CAB\Package('yourNewCABFile.cab',0);
 $package->addFile(__DIR__ . '/data/testfile1.xlsx');
 $package->addFile(__DIR__ . '/data/testfile2.txt');
 $package->addFile(__DIR__ . '/data/testfile3.xlsx');
