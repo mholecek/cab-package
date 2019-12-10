@@ -6,7 +6,7 @@ Usage
 -----
 Download or clone library.
 Then, you can use it:
-```php
+```
 $package = new \Holda\CAB\Package('yourNewCABFile.cab',0);
 $package->addFile(__DIR__ . '/data/testfile1.xlsx');
 $package->addFile(__DIR__ . '/data/testfile2.txt');
@@ -16,12 +16,12 @@ $package->write();
 ```
 First parameter is file, which you want to create, second parameter is compression, where: 0 - means no compression (store) and 9 - means maximum compression.
 
-```php
+```
 $package = new \Holda\CAB\Package('yourNewCABFile.cab',0); // no compression
 
 ```
 
-```php
+```
 $package = new \Holda\CAB\Package('yourNewCABFile.cab',9); // maximum compression
 
 ```
