@@ -17,7 +17,7 @@
         "php": "^7.2.0"
     },
     "suggest": {
-		"ext-zlib": "to use compression",
+		"ext-zlib": "to use compression"
 	},
     "autoload": {
         "psr-4": {
