@@ -19,7 +19,7 @@ final class Folder
 	public $blocks = 0;
 	
 	/** @var int */
-	public $dataOffset = 0;
+	public $dataSize = 0;
 	
 	/** @var File[] */
 	private $files = [];
@@ -43,10 +43,10 @@ final class Folder
 	public function addFile(File $file): void
 	{
 		// header 36bytes, folder 8bytes, file 17bytes
-		$this->dataOffset += $file->size;
+		$this->dataSize += $file->size;
 		$this->offset += 16 + strlen($file->name);  //+ 1; // offset of first fileData
 		
-		$file->offset = $this->dataOffset;
+		$file->offset = $this->dataSize;
 		
 		$this->files[] = $file;
 	}

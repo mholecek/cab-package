@@ -14,7 +14,7 @@ class Package
 	 *
 	 * @var int
 	 */
-	static $MAX_BLOCKSIZE_BYTES = 32768;
+	static $MAX_BLOCKSIZE = 32768;
 	
 	/**
 	 * Path to a new cab file
@@ -54,7 +54,7 @@ class Package
 	 */
 	public function write(): void
 	{
-		$this->folder->blocks = (int)ceil($this->folder->dataOffset / static::$MAX_BLOCKSIZE_BYTES);
+		$this->folder->blocks = (int)ceil($this->folder->dataSize / static::$MAX_BLOCKSIZE);
 		$this->header->cbCabinet += ($this->folder->blocks * 8);
 		if (($res = fopen($this->cabFile, "w+b")) !== FALSE) {
 			$this->writeHeader($res);
@@ -211,9 +211,10 @@ class Package
 	{
 		assert(is_resource($res));
 		
-		$datasize = $this->folder->dataOffset;
-		$blocksize = $datasize > static::$MAX_BLOCKSIZE_BYTES ? static::$MAX_BLOCKSIZE_BYTES : $datasize;
-		$block = $blocksize;
+		$processedFiles = 0;
+		$dataSize = $this->folder->dataSize;
+		$blockSize = $dataSize > static::$MAX_BLOCKSIZE ? static::$MAX_BLOCKSIZE : $dataSize;
+		$block = $blockSize;
 		
 		$newblock = FALSE;
 		$buffer = "";
@@ -233,44 +234,52 @@ class Package
 					$currentFilePosition = ftell($addedFile);
 					$thisTimeDataLength = $currentFilePosition - $lastTimeDataLength; // 11 - 0
 					$lastTimeDataLength = $currentFilePosition; //11
-					$datasize -= $thisTimeDataLength;
+					$dataSize -= $thisTimeDataLength;
 					
-					if ($thisTimeDataLength === $blocksize) {
-						$block = static::$MAX_BLOCKSIZE_BYTES;
+					if ($thisTimeDataLength === $blockSize) {
+						$block = static::$MAX_BLOCKSIZE;
 						$newblock = TRUE;
 					} else {
 						$block -= $thisTimeDataLength;
 						$newblock = FALSE;
 						if ($block <= 0) {
-							$block = static::$MAX_BLOCKSIZE_BYTES;
+							$block = static::$MAX_BLOCKSIZE;
 							$newblock = TRUE;
 						}
 					}
 					
 					if ($newblock) {
-						$data = $this->folder->compressionType === 1 ? $this->compressData($buffer) : [
-							'cbytes' => $blocksize,
-							'data' => $buffer,
-						];
-						if (!empty($buffer)) {
-							$this->writeDWord($res, 0); // cSum, not calculated
-							$this->writeWord($res, $data['cbytes']); // cbData
-							$this->writeWord($res, $blocksize); // cbUncomp
-							$this->writeByteBuffer($res, $data['data']); //
-						}
-						$blocksize = $datasize > static::$MAX_BLOCKSIZE_BYTES ? static::$MAX_BLOCKSIZE_BYTES : $datasize;
+						$this->writeBlock($res, $buffer, $blockSize);
+						$blockSize = $dataSize > static::$MAX_BLOCKSIZE ? static::$MAX_BLOCKSIZE : $dataSize;
 						$buffer = "";
 					}
+				}
+				$processedFiles++;
+				
+				if ($processedFiles === $this->header->filesCount) {
+					$this->writeBlock($res, $buffer, $blockSize);
 				}
 				
 				// close input file
 				fclose($addedFile);
-				if (preg_match("'\.cabtemp$'", $file->path)) {
-					unlink($file->path);
-				}
 			} else {
 				throw new \RuntimeException("Failed to open " . $file->name);
 			}
+		}
+	}
+	
+	private function writeBlock($res, string $blockData, int $blockSize): void
+	{
+		$data = $this->folder->compressionType === 1 ? $this->compressData($blockData) : [
+			'cbytes' => $blockSize,
+			'data' => $blockData,
+		];
+		
+		if (!empty($blockData)) {
+			$this->writeDWord($res, 0); // cSum, not calculated
+			$this->writeWord($res, $data['cbytes']); // cbData
+			$this->writeWord($res, $blockSize); // cbUncomp
+			$this->writeByteBuffer($res, $data['data']); //
 		}
 	}
 	
