@@ -285,7 +285,7 @@ class Package
 		
 		$t = ftell($res);
 		fseek($res, 8);
-		$this->writeDWord($res, $t);co
+		$this->writeDWord($res, $t);
 	}
 	
 	private function compressData($buffer): array
