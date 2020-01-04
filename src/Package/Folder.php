@@ -42,11 +42,11 @@ final class Folder
 	
 	public function addFile(File $file): void
 	{
-		// header 36bytes, folder 8bytes, file 17bytes
-		$this->dataSize += $file->size;
-		$this->offset += 16 + strlen($file->name);  //+ 1; // offset of first fileData
-		
 		$file->offset = $this->dataSize;
+
+		$this->dataSize += $file->size;
+		// header 36bytes, folder 8bytes, file 17bytes
+		$this->offset += 16 + strlen($file->name);  //+ 1; // offset of first fileData
 		
 		$this->files[] = $file;
 	}
